@@ -1,0 +1,31 @@
+//Question 1
+::Q1::
+text of Q1
+//comment q1
+{}
+
+first paret of text of Q2
+//comment in Q2   
+second part of text of Q2
+{answer Q2}
+
+// single comment
+
+// Comment Q3 with a \{
+text Q3 including \{
+{
+answer Q3 with specials \}
+}
+
+$CATEGORY: $course$/Toutes 
+
+invalid question Q4
+there is no answer
+
+
+
+::Q5::[markdown] MArkdown text in Q5{answer Q5}
+
+question 6 {} with tail
+
+

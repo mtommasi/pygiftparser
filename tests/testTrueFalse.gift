@@ -1,0 +1,12 @@
+
+
+// Q9: 0 name: TrueStatement using {T} style
+::Q9TrueStatement about Grant::Grant was buried in a tomb in New York City.{T}
+
+// Q10: 0 name: FalseStatement using {FALSE} style
+::Q10 FalseStatement about sun::The sun rises in the West.{FALSE}
+
+42 is the Absolute Answer to everything.{
+FALSE#42is the Ultimate Answer.#You gave the right answer.}
+
+
