@@ -2,17 +2,27 @@
 import logging
 import re
 
-reSepQuestions=re.compile('^\s*$')
-reComment=re.compile('^//.*$')
-reCategory=re.compile('^\$CATEGORY: (?P<cat>[/\w$]*)')
-# Title supposed to be at the begining of a line
-reTitle=re.compile('^::(?P<title>.*?)::(?P<text>.*)$',re.M+re.S)
-reFormat=re.compile('^.*\[(?P<format>.*?)\](?P<text>.*)',re.M+re.S)
-reAnswer=re.compile('^(?P<head>.*[^\\\\]){(?P<answer>.*[^\\\\]?)}(?P<tail>.*)',re.M+re.S)
+# TODOS:
+# - unittest
+# - numerical answers in a list
+# - new lines \n in headings etc...
 
 # Sub regular expressions
 OPTIONALFEEDBACK='(#(?P<feedback>[^=~#]*))?'
 OPTIONALFEEDBACK2='(#(?P<feedback2>[^=~#]*))?'
+GENERALFEEDBACK='(####(?P<generalfeedback>.*))?'
+ANYCHAR='([^\\\\#=~]|\\\\.)'
+
+# Regular Expressions 
+reSepQuestions=re.compile('^\s*$')
+reComment=re.compile('^//.*$')
+reCategory=re.compile('^\$CATEGORY: (?P<cat>[/\w$]*)')
+
+# Heading
+# Title is supposed to be at the begining of a line
+reTitle=re.compile('^::(?P<title>.*?)::(?P<text>.*)$',re.M+re.S)
+reFormat=re.compile('^.*\[(?P<format>.*?)\](?P<text>.*)',re.M+re.S)
+reAnswer=re.compile('^(?P<head>.*[^\\\\]){(?P<answer>.*?[^\\\\]?)'+GENERALFEEDBACK+'}(?P<tail>.*)',re.M+re.S)
 
 # numeric answers
 reAnswerNumeric=re.compile('^#')
@@ -20,7 +30,7 @@ reAnswerNumericValue = re.compile('\s*(?P<value>[\d.,]+)(:?P<tolerance>[\d.,]+)?
 reAnswerNumericInterval=re.compile('\s*(?P<min>[\d.]+)..(?P<max>[\d.,]+)'+OPTIONALFEEDBACK)
 
 # Multiple choices only ~ symbols
-reAnswerMultipleChoices = re.compile('\s*(?P<sign>=|~)(%(?P<fraction>-?[\d.]+)%)?(?P<answer>[^#=~]*)'+OPTIONALFEEDBACK)
+reAnswerMultipleChoices = re.compile('\s*(?P<sign>=|~)(%(?P<fraction>-?[\d.]+)%)?(?P<answer>([^\\\\#=~]|\\\\.)*)'+OPTIONALFEEDBACK)
 
 # True False
 reAnswerTrueFalse = re.compile('^\s*(?P<answer>(T(RUE)?)|(F(ALSE)?))'+OPTIONALFEEDBACK+OPTIONALFEEDBACK2)
@@ -58,7 +68,7 @@ class Description(AnswerSet):
 class TrueFalseSet(AnswerSet):
     """ True or False"""
     # Q: should I introduce Answer variables?
-    def __init__(self,match):
+    def __init__(self,question,match):
         AnswerSet.__init__(self,question)
         self.answer = match.group('answer').startswith('T')
         self.feedbackWrong = stripMatch(match,"feedback")
@@ -157,9 +167,10 @@ class Question:
         self.full = full
         self.category = cat
         self.valid = True
-        self.__parse(source)
+        self.parse(source)
         
-    def __parse(self,source):
+    def parse(self,source):
+        """ parse a question source. Comments should be removed first"""
         # split according to the answer
         match = reAnswer.match(source)
         if not match:
@@ -169,6 +180,7 @@ class Question:
         else: 
             self.tail=stripMatch(match,'tail') 
             self.__parseHead(match.group('head'))
+            self.generalFeedback = stripMatch(match,'generalfeedback')
             self.__parseAnswer(match.group('answer'))
         
     def __parseHead(self,head):
@@ -184,10 +196,10 @@ class Question:
         match = reFormat.match(textFormat)
         if match:
             self.format = match.group('format').lower()
-            self.text = match.group('text')
+            self.text = match.group('text').strip()
         else:
             self.format = 'moodle'
-            self.text = textFormat
+            self.text = textFormat.strip()
 
     
 
@@ -207,7 +219,7 @@ class Question:
         numeric = False
         self.numeric = reAnswerNumeric.match(answer) != None
 
-        #  answers with choices and short answers (TODO short easy)
+        #  answers with choices and short answers
         answers=[]
         select = False
         short = True
@@ -221,13 +233,14 @@ class Question:
             matching = matching and short and a.isMatching
             answers.append(a)
         if len(answers) > 0 :
+            # TODO: numeric answers in a list
             if short:
                 self.answers = ShortSet(self,answers)
             if select:
                 self.answers = SelectSet(self,answers)
             else:
                 self.answers = MultipleChoicesSet(self,answers)
-                self.valid = self.answers.checkValidity() #TODO
+                self.valid = self.answers.checkValidity() 
         elif self.numeric :
             # is it a single numerical answer?
             self.answers = SingleNumericAnswer(self,answer)
