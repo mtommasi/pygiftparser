@@ -1,6 +1,9 @@
 #!/usr/bin/python3
 import logging
 import re
+import yattag
+import i18n
+_ = i18n.language.gettext
 
 # TODOS:
 # - unittest
@@ -12,6 +15,7 @@ OPTIONALFEEDBACK='(#(?P<feedback>[^=~#]*))?'
 OPTIONALFEEDBACK2='(#(?P<feedback2>[^=~#]*))?'
 GENERALFEEDBACK='(####(?P<generalfeedback>.*))?'
 ANYCHAR='([^\\\\#=~]|\\\\.)'
+NUMERIC='[\d]+(\.[\d]+)?'
 
 # Regular Expressions 
 reSepQuestions=re.compile('^\s*$')
@@ -21,13 +25,13 @@ reCategory=re.compile('^\$CATEGORY: (?P<cat>[/\w$]*)')
 # Heading
 # Title is supposed to be at the begining of a line
 reTitle=re.compile('^::(?P<title>.*?)::(?P<text>.*)$',re.M+re.S)
-reFormat=re.compile('^.*\[(?P<format>.*?)\](?P<text>.*)',re.M+re.S)
+reMarkup=re.compile('^.*\[(?P<markup>.*?)\](?P<text>.*)',re.M+re.S)
 reAnswer=re.compile('^(?P<head>.*[^\\\\]){(?P<answer>.*?[^\\\\]?)'+GENERALFEEDBACK+'}(?P<tail>.*)',re.M+re.S)
 
 # numeric answers
 reAnswerNumeric=re.compile('^#')
-reAnswerNumericValue = re.compile('\s*(?P<value>[\d.,]+)(:?P<tolerance>[\d.,]+)?'+OPTIONALFEEDBACK)
-reAnswerNumericInterval=re.compile('\s*(?P<min>[\d.]+)..(?P<max>[\d.,]+)'+OPTIONALFEEDBACK)
+reAnswerNumericValue = re.compile('\s*(?P<value>'+NUMERIC+')(:(?P<tolerance>'+NUMERIC+'))?'+OPTIONALFEEDBACK)
+reAnswerNumericInterval=re.compile('\s*(?P<min>'+NUMERIC+')(\.\.(?P<max>'+NUMERIC+'))?'+OPTIONALFEEDBACK)
 
 # Multiple choices only ~ symbols
 reAnswerMultipleChoices = re.compile('\s*(?P<sign>=|~)(%(?P<fraction>-?[\d.]+)%)?(?P<answer>([^\\\\#=~]|\\\\.)*)'+OPTIONALFEEDBACK)
@@ -50,7 +54,7 @@ def stripMatch(match,s):
 class AnswerSet:
     def __init__(self,question):
         self.question = question
-        self.alid = True
+        self.valid = True
         
     def myprint(self):
         print (self.__class__)
@@ -60,11 +64,18 @@ class Essay(AnswerSet):
     def __init__(self,question):
         AnswerSet.__init__(self,question)
 
+    def toHTML(self, doc, full):
+        with doc.tag('textarea',name=self.question.getId(),placeholder=_('Your answer here')):
+            doc.text('')
+        
 class Description(AnswerSet):
     """ Emptyset, nothing!"""
     def __init__(self,question):
         AnswerSet.__init__(self,question)
 
+    def toHTML(self,doc, full):
+        return
+    
 class TrueFalseSet(AnswerSet):
     """ True or False"""
     # Q: should I introduce Answer variables?
@@ -76,26 +87,86 @@ class TrueFalseSet(AnswerSet):
         
     def myprint(self):
         print (">TrueFalse:",self.answer,"--",self.feedbackWrong,"--",self.feedbackCorrect)
+
+    def toHTML(self,doc, full):
+        with doc.tag('ul'):
+            with doc.tag('li'):
+                doc.input(name = self.question.getId(), type = 'radio', value = True)
+                doc.text(_('True'))
+            with doc.tag('li'):
+                doc.input(name = self.question.getId(), type = 'radio', value = False)
+                doc.text(_('False'))
+        if full:
+            with doc.tag('div', klass='answerFeedback'):
+                with doc.tag('div', klass='answerCorrectFeedback'):
+                    doc.text(markupRendering(self.feedbackCorrect,self.question.markup))
+                with doc.tag('div', klass='answerWrongFeedback'):
+                    doc.text(markupRendering(self.feedbackWrong,self.question.markup))
+
         
 class SingleNumericAnswer(AnswerSet):
     """ """
     def __init__(self,question,answer):
         AnswerSet.__init__(self,question)
-        match = reAnswerNumericValue.match(answer)
+        self.answers = []
+        match =reAnswerNumericValue.match(answer)
         if match:
-            self.value = float(match.group('value'))
-            if match.group('tolerance'):
-                self.tolerance = float( match.group('tolerance') )
+            a = NumericAnswer(match)
+            self.answers.append(a)
+            self.feedback = stripMatch(match,"feedback")
         else:
             match = reAnswerNumericInterval.match(answer)
             if match:
-                self.mini = match.group('min')
-                self.maxi = match.group('max')
-            else:
+                a = NumericAnswerMinMax(match)
+                self.feedback = stripMatch(match,"feedback")
+                self.answers.append(a)
+            else :
                 self.valid = False
-                 
+
+    def toHTML(self,doc, full):
+        doc.input(name = self.question.getId(), type = 'number')
+        if full:
+            with doc.tag('div', klass='answerFeedback'):
+                with doc.tag('div', klass='answerFeedback'):
+                    doc.text(markupRendering(self.feedback,self.question.markup))
+
+class MatchingSet(AnswerSet):
+    """  a mapping (list of pairs) """
+    def __init__(self,question,answers):
+        AnswerSet.__init__(self,question)
+        self.answers = answers
+        self.possibleAnswers = [a.answer for a in self.answers]
+
+    def checkValidity(self):
+        valid = True
+        for a in self.answers:
+            valid = valid and a.matching
+        return valid
+    
+    def myprint(self):
+        print ("Answers :")
+        for a in self.answers:
+            a.myprint()
+            print ('~~~~~')
+
+    def toHTML(self,doc, full):
+        with doc.tag ('ul'):
+            for a in self.answers:
+                with doc.tag('li'):
+                    doc.text(a.question+' : ')
+                    # should be distinct to _charset_ and isindex,...
+                    n = self.question.getId() + a.question
+                    with doc.tag('select', name= n):
+                        for a in self.possibleAnswers:
+                            with doc.tag('option'):
+                                doc.text(a)
+        if full:
+            #TODO!!
+            pass
+        
+    
 class ChoicesSet(AnswerSet):
-    """ One or many choices in a list"""
+    """ One or many choices in a list (Abstract)"""
     def __init__(self,question,answers):
         AnswerSet.__init__(self,question)
         self.answers = answers
@@ -106,14 +177,30 @@ class ChoicesSet(AnswerSet):
             a.myprint()
             print ('~~~~~')
 
+                    
+
 class ShortSet(ChoicesSet):
+    """ A single answer is expected but several solutions are possible """ 
     def __init__(self,question,answers):
         ChoicesSet.__init__(self,question,answers)
+
+    def toHTML(self,doc, full):
+        doc.input(name=self.question.getId(), type = 'text')
+                
 
 class SelectSet(ChoicesSet):
     """ One  choice in a list"""
     def __init__(self,question,answers):
         ChoicesSet.__init__(self,question,answers)
+
+    def toHTML(self,doc, full):
+        with doc.tag('select', name=self.question.getId()):
+            for a in self.answers:
+                with doc.tag('option'):
+                    doc.text(a.answer)
+        if full:
+            #TODO!!
+            pass
 
 class MultipleChoicesSet(ChoicesSet):
     """ One or more choices in a list"""
@@ -124,8 +211,35 @@ class MultipleChoicesSet(ChoicesSet):
         """ Check validity the sum f fractions should be 100 """
         return sum([ a.fraction for a in self.answers if a.fraction>0]) == 100
 
+    def toHTML(self,doc, full):
+        with doc.tag('ul'):
+            for a in self.answers:
+                with doc.tag('li'):
+                    doc.input(name = self.question.getId(), type = 'checkbox')
+                    doc.text(a.answer)
+        if full:
+            #TODO!!
+            pass
+                    
+
 ################# Single answer ######################
 class Answer:
+    """ one answer in a list"""
+    pass
+
+
+class NumericAnswer(Answer):
+    def __init__(self,match):
+        self.value = float(match.group('value'))
+        if match.group('tolerance'):
+            self.tolerance = float( match.group('tolerance') )
+    
+class NumericAnswerMinMax(Answer):
+    def __init__(self,match):
+        self.mini = match.group('min')
+        self.maxi = match.group('max')
+
+class AnswerInList(Answer):
     """ one answer in a list"""
     def __init__(self,match):
         if not match : return
@@ -168,6 +282,10 @@ class Question:
         self.category = cat
         self.valid = True
         self.parse(source)
+
+    def getId(self):
+        """ get Identifier for the question""" 
+        return 'Q'+str(id(self)) # TODO process title
         
     def parse(self,source):
         """ parse a question source. Comments should be removed first"""
@@ -177,6 +295,7 @@ class Question:
             # it is a description
             self.answers = Description(None)
             self.__parseHead(source)
+            self.generalFeedback = ""
         else: 
             self.tail=stripMatch(match,'tail') 
             self.__parseHead(match.group('head'))
@@ -188,18 +307,18 @@ class Question:
         match = reTitle.match(head)
         if match:
             self.title = match.group('title').strip()
-            textFormat = match.group('text')
+            textMarkup = match.group('text')
         else:
             self.title = head[:20] # take 20 first chars as a title
-            textFormat = head
+            textMarkup = head
             
-        match = reFormat.match(textFormat)
+        match = reMarkup.match(textMarkup)
         if match:
-            self.format = match.group('format').lower()
+            self.markup = match.group('markup').lower()
             self.text = match.group('text').strip()
         else:
-            self.format = 'moodle'
-            self.text = textFormat.strip()
+            self.markup = 'moodle'
+            self.text = textMarkup.strip()
 
     
 
@@ -225,7 +344,7 @@ class Question:
         short = True
         matching = True
         for match in reAnswerMultipleChoices.finditer(answer):
-            a = Answer(match)
+            a = AnswerInList(match)
             # one = sign is a select question
             if a.select: select = True
             # short answers are only = signs without fractions
@@ -236,18 +355,39 @@ class Question:
             # TODO: numeric answers in a list
             if short:
                 self.answers = ShortSet(self,answers)
-            if select:
+            elif select:
                 self.answers = SelectSet(self,answers)
+            elif matching:
+                self.answers = MatchingSet(self,answers)
+                self.valid = self.answers.checkValidity()
             else:
                 self.answers = MultipleChoicesSet(self,answers)
                 self.valid = self.answers.checkValidity() 
         elif self.numeric :
             # is it a single numerical answer?
-            self.answers = SingleNumericAnswer(self,answer)
+            self.answers = SingleNumericAnswer(self,answer[1:])
+            self.valid = self.answers.valid
         else:
             # not a valid question  ?
+            logging.warning("Incorrect question "+self.full)
             self.valid = False
 
+    def toHTML(self, doc=yattag.Doc(),feedbacks=False):
+        """ produces an HTML fragment, feedbacks controls the output of feedbacks"""
+        if not self.valid: return ''
+        with doc.tag('div', klass='question'):
+            with doc.tag('div', klass='questionTitle'):
+                doc.text(self.title)
+            with doc.tag('form', action = ""):
+                with doc.tag('div', klass='questionText'):
+                    doc.text(markupRendering(self.text,self.markup))
+                with doc.tag('div', klass='questionAnswers'):
+                    self.answers.toHTML(doc,feedbacks)
+                if feedbacks:
+                    if self.generalFeedback != '':
+                        with doc.tag('div', klass='questionGeneralFeedback'):
+                            doc.text(markupRendering(self.generalFeedback,self.markup))
+            
     def myprint(self):
         print ("=========Question=========")
         if not self.valid:
@@ -260,7 +400,26 @@ class Question:
                 self.answers.myprint()
             else:
                 print (key,':',val)
+
+def moodleRendering(src):
+    return src
+
+def htmlRendering(src):
+    return src
+
+def markdownRendering(src):
+    return markdown.markdown(src)
+    
+def markupRendering(src,markup='html'):
+    m = sys.modules[__name__]
+    rendering=markup+'Rendering'
+    if rendering in m.__dict__ :
+        return getattr(m,rendering)(src)
+    else:
+        logging.warning('Rendering error: unknown markup language '+self.markup)
         
+    
+    
 def parseFile(f):
     cleanedSource = fullSource = ""
     category='$course$'
@@ -308,5 +467,13 @@ if __name__ == "__main__":
     questions = parseFile (args.f)
     args.f.close()
 
-    for q in questions:
-        q.myprint()
+    d = yattag.Doc()
+    d.asis('<!DOCTYPE html>')
+    with d.tag('html'):
+        with d.tag('head'):
+            d.stag('link', rel="stylesheet", href="default.css", type="text/css")
+        with d.tag('body'):
+            for q in questions:
+                q.toHTML(d,True)
+
+    print (d.getvalue())
