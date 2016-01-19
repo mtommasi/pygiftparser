@@ -1,0 +1,53 @@
+.question {
+    padding: 1em;
+    background-color: lightgray;
+    margin: 1em;
+}
+
+.questionTitle{
+    font-weight: bolder;
+    font-size: larger;
+    font-style: italic;
+    padding: .5em;
+    background-color: lightsteelblue;
+}
+
+.questionText{
+    padding:1em 1em;
+}
+
+.questionAnswers{
+    padding:0.5em 1em;
+}
+
+.questionAnswers ul{
+    margin-top:initial;
+}
+
+.questionAnswers td{
+    text-align: right;
+}
+
+.questionAnswers li { 
+    list-style-type: none;
+}
+
+.questionAnswers textarea {
+    width: 100%;
+    height: 12em;
+}
+
+.questionGeneralFeedback, .answerWrongFeedback, .answerCorrectFeedback {
+    text-align: right;
+    color:gray;
+}
+
+.questionGeneralFeedback:before{
+    content: "General feedback : ";
+}
+.answerCorrectFeedback:before{
+    content: "Correct feedback : ";
+}
+.answerWrongFeedback:before{
+    content: "Wrong feedback : ";
+}

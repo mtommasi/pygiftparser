@@ -3,6 +3,7 @@ import logging
 import re
 import yattag
 import i18n
+import sys
 _ = i18n.language.gettext
 
 # TODOS:
@@ -97,9 +98,11 @@ class TrueFalseSet(AnswerSet):
                 doc.input(name = self.question.getId(), type = 'radio', value = False)
                 doc.text(_('False'))
         if full:
-            with doc.tag('div', klass='answerFeedback'):
-                with doc.tag('div', klass='answerCorrectFeedback'):
-                    doc.text(markupRendering(self.feedbackCorrect,self.question.markup))
+            if self.feedbackCorrect :
+                with doc.tag('div', klass='answerFeedback'):
+                    with doc.tag('div', klass='answerCorrectFeedback'):
+                        doc.text(markupRendering(self.feedbackCorrect,self.question.markup))
+            if self.feedbackWrong :
                 with doc.tag('div', klass='answerWrongFeedback'):
                     doc.text(markupRendering(self.feedbackWrong,self.question.markup))
 
@@ -140,7 +143,7 @@ class MatchingSet(AnswerSet):
     def checkValidity(self):
         valid = True
         for a in self.answers:
-            valid = valid and a.matching
+            valid = valid and a.isMatching
         return valid
     
     def myprint(self):
@@ -150,16 +153,18 @@ class MatchingSet(AnswerSet):
             print ('~~~~~')
 
     def toHTML(self,doc, full):
-        with doc.tag ('ul'):
+        with doc.tag('table'):
             for a in self.answers:
-                with doc.tag('li'):
-                    doc.text(a.question+' : ')
-                    # should be distinct to _charset_ and isindex,...
-                    n = self.question.getId() + a.question
-                    with doc.tag('select', name= n):
-                        for a in self.possibleAnswers:
-                            with doc.tag('option'):
-                                doc.text(a)
+                with doc.tag('tr'):
+                    with doc.tag('td'):
+                        doc.text(a.question)
+                    with doc.tag('td'):
+                        # should be distinct to _charset_ and isindex,...
+                        n = self.question.getId() + a.question
+                        with doc.tag('select', name= n):
+                            for a in self.possibleAnswers:
+                                with doc.tag('option'):
+                                    doc.text(a)
         if full:
             #TODO!!
             pass
@@ -351,15 +356,16 @@ class Question:
             short = short and a.select and a.fraction == 100
             matching = matching and short and a.isMatching
             answers.append(a)
+            
         if len(answers) > 0 :
             # TODO: numeric answers in a list
-            if short:
+            if matching:
+                self.answers = MatchingSet(self,answers)
+                self.valid = self.answers.checkValidity()
+            elif short:
                 self.answers = ShortSet(self,answers)
             elif select:
                 self.answers = SelectSet(self,answers)
-            elif matching:
-                self.answers = MatchingSet(self,answers)
-                self.valid = self.answers.checkValidity()
             else:
                 self.answers = MultipleChoicesSet(self,answers)
                 self.valid = self.answers.checkValidity() 
@@ -456,7 +462,6 @@ def parseFile(f):
 
 
 if __name__ == "__main__":
-    import sys
     import argparse
     parser = argparse.ArgumentParser(description="Parses gift files.")
     parser.add_argument("-l", "--log", dest="logLevel", choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'], help="Set the logging level", default='WARNING')
@@ -467,13 +472,5 @@ if __name__ == "__main__":
     questions = parseFile (args.f)
     args.f.close()
 
-    d = yattag.Doc()
-    d.asis('<!DOCTYPE html>')
-    with d.tag('html'):
-        with d.tag('head'):
-            d.stag('link', rel="stylesheet", href="default.css", type="text/css")
-        with d.tag('body'):
-            for q in questions:
-                q.toHTML(d,True)
-
-    print (d.getvalue())
+    for q in questions:
+        q.myprint()
