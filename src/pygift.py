@@ -130,8 +130,7 @@ class SingleNumericAnswer(AnswerSet):
         doc.input(name = self.question.getId(), type = 'number')
         if full:
             with doc.tag('div', klass='answerFeedback'):
-                with doc.tag('div', klass='answerFeedback'):
-                    doc.text(markupRendering(self.feedback,self.question.markup))
+                doc.text(markupRendering(self.feedback,self.question.markup))
 
 class MatchingSet(AnswerSet):
     """  a mapping (list of pairs) """
@@ -286,6 +285,8 @@ class Question:
         self.full = full
         self.category = cat
         self.valid = True
+        self.tail = ''
+        self.generalFeedback = ""
         self.parse(source)
 
     def getId(self):
@@ -300,9 +301,8 @@ class Question:
             # it is a description
             self.answers = Description(None)
             self.__parseHead(source)
-            self.generalFeedback = ""
-        else: 
-            self.tail=stripMatch(match,'tail') 
+        else:
+            self.tail=stripMatch(match,'tail')
             self.__parseHead(match.group('head'))
             self.generalFeedback = stripMatch(match,'generalfeedback')
             self.__parseAnswer(match.group('answer'))
@@ -378,21 +378,32 @@ class Question:
             logging.warning("Incorrect question "+self.full)
             self.valid = False
 
-    def toHTML(self, doc=yattag.Doc(),feedbacks=False):
+    def toHTML(self, doc=None,feedbacks=False):
         """ produces an HTML fragment, feedbacks controls the output of feedbacks"""
         if not self.valid: return ''
+        if doc == None : doc=yattag.Doc()
         with doc.tag('div', klass='question'):
             with doc.tag('div', klass='questionTitle'):
                 doc.text(self.title)
             with doc.tag('form', action = ""):
-                with doc.tag('div', klass='questionText'):
-                    doc.text(markupRendering(self.text,self.markup))
-                with doc.tag('div', klass='questionAnswers'):
-                    self.answers.toHTML(doc,feedbacks)
+                if self.tail !='' :
+                    with doc.tag('span', klass='questionTextInline'):
+                        doc.text(markupRendering(self.text,self.markup))
+                        doc.text(' ')
+                    with doc.tag('span', klass='questionAnswersInline'):
+                        self.answers.toHTML(doc,feedbacks)
+                    doc.text(' ')
+                    doc.text(markupRendering(self.tail,self.markup))
+                else:
+                    with doc.tag('div', klass='questionText'):
+                        doc.text(markupRendering(self.text,self.markup))
+                    with doc.tag('div', klass='questionAnswers'):
+                        self.answers.toHTML(doc,feedbacks)
                 if feedbacks:
                     if self.generalFeedback != '':
                         with doc.tag('div', klass='questionGeneralFeedback'):
                             doc.text(markupRendering(self.generalFeedback,self.markup))
+        return doc
             
     def myprint(self):
         print ("=========Question=========")
@@ -466,6 +477,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Parses gift files.")
     parser.add_argument("-l", "--log", dest="logLevel", choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'], help="Set the logging level", default='WARNING')
     parser.add_argument('f', help="gift file",type=argparse.FileType('r'))
+    parser.add_argument('-H', '--html', help="html output",action="store_true")
     args = parser.parse_args()
     logging.basicConfig(filename='gift.log',filemode='w',level=getattr(logging, args.logLevel))
 
@@ -473,4 +485,9 @@ if __name__ == "__main__":
     args.f.close()
 
     for q in questions:
-        q.myprint()
+        if args.html:
+            d= q.toHTML()
+            print (d.getvalue())
+            print ("<hr />")
+        else:
+            q.myprint()
