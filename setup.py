@@ -13,7 +13,7 @@ setup(
     license="AGPL",
     author="Marc Tommasi - UdL/INRIA",
     packages=find_packages(),
-    install_requires=['logging', 'yattag', 'i18n', 're'],
+    install_requires=['yattag', 'i18n', 're'],
     long_description=long_description,
     classifiers=[
         "Programming Language :: Python",
