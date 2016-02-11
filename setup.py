@@ -7,7 +7,7 @@ except IOError:
     long_description = ""
 
 setup(
-    name="py-Gift",
+    name="pygift",
     version="0.1",
     description="GIFT parser in python that parses a Gift source code and loads data in a Question/Answer model for further use in an application",
     license="AGPL",
