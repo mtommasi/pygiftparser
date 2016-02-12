@@ -41,6 +41,7 @@
     text-align: right;
     color:gray;
 }
+.answerFeedback {display: inline;}
 
 .questionGeneralFeedback:before{
     content: "General feedback : ";

@@ -9,7 +9,11 @@ _ = i18n.language.gettext
 # TODOS:
 # - unittest
 # - numerical answers in a list
-# - new lines \n in headings etc...
+# - simplify regular expressions using the r prefix in re-string
+
+# Url and blank lines (moodle format)
+reURL=re.compile(r"(http://[^ ]+)",re.M)
+reNewLine=re.compile(r'\n\n',re.M)
 
 # Sub regular expressions
 OPTIONALFEEDBACK='(#(?P<feedback>[^=~#]*))?'
@@ -101,10 +105,10 @@ class TrueFalseSet(AnswerSet):
             if self.feedbackCorrect :
                 with doc.tag('div', klass='answerFeedback'):
                     with doc.tag('div', klass='answerCorrectFeedback'):
-                        doc.text(markupRendering(self.feedbackCorrect,self.question.markup))
+                        doc.asis(markupRendering(self.feedbackCorrect,self.question.markup))
             if self.feedbackWrong :
                 with doc.tag('div', klass='answerWrongFeedback'):
-                    doc.text(markupRendering(self.feedbackWrong,self.question.markup))
+                    doc.asis(markupRendering(self.feedbackWrong,self.question.markup))
 
         
 class SingleNumericAnswer(AnswerSet):
@@ -130,7 +134,7 @@ class SingleNumericAnswer(AnswerSet):
         doc.input(name = self.question.getId(), type = 'number')
         if full:
             with doc.tag('div', klass='answerFeedback'):
-                doc.text(markupRendering(self.feedback,self.question.markup))
+                doc.asis(markupRendering(self.feedback,self.question.markup))
 
 class MatchingSet(AnswerSet):
     """  a mapping (list of pairs) """
@@ -294,7 +298,7 @@ class Question:
         return 'Q'+str(id(self)) # TODO process title
         
     def parse(self,source):
-        """ parse a question source. Comments should be removed first"""
+        """ parses a question source. Comments should be removed first"""
         # split according to the answer
         match = reAnswer.match(source)
         if not match:
@@ -308,7 +312,7 @@ class Question:
             self.__parseAnswer(match.group('answer'))
         
     def __parseHead(self,head):
-        # find the title and the type of the text
+        # finds the title and the type of the text
         match = reTitle.match(head)
         if match:
             self.title = match.group('title').strip()
@@ -324,7 +328,8 @@ class Question:
         else:
             self.markup = 'moodle'
             self.text = textMarkup.strip()
-
+        # replace \n
+        self.text = re.sub(r'\\n','\n',self.text)
     
 
     def __parseAnswer(self,answer):
@@ -388,21 +393,21 @@ class Question:
             with doc.tag('form', action = ""):
                 if self.tail !='' :
                     with doc.tag('span', klass='questionTextInline'):
-                        doc.text(markupRendering(self.text,self.markup))
+                        doc.asis(markupRendering(self.text,self.markup))
                         doc.text(' ')
                     with doc.tag('span', klass='questionAnswersInline'):
                         self.answers.toHTML(doc,feedbacks)
                     doc.text(' ')
-                    doc.text(markupRendering(self.tail,self.markup))
+                    doc.asis(markupRendering(self.tail,self.markup))
                 else:
                     with doc.tag('div', klass='questionText'):
-                        doc.text(markupRendering(self.text,self.markup))
+                        doc.asis(markupRendering(self.text,self.markup))
                     with doc.tag('div', klass='questionAnswers'):
                         self.answers.toHTML(doc,feedbacks)
                 if feedbacks:
                     if self.generalFeedback != '':
                         with doc.tag('div', klass='questionGeneralFeedback'):
-                            doc.text(markupRendering(self.generalFeedback,self.markup))
+                            doc.asis(markupRendering(self.generalFeedback,self.markup))
         return doc
             
     def myprint(self):
@@ -419,6 +424,11 @@ class Question:
                 print (key,':',val)
 
 def moodleRendering(src):
+    """ See https://docs.moodle.org/23/en/Formatting_text#Moodle_auto-format"""
+    # blank lines are new paragraphs, url are links, html is allowed
+    # quick and dirty conversion (don't closed p tags...)
+    src = reURL.sub(r'<a href="\1">\1</a>', src)
+    src = reNewLine.sub(r'<p>',src)
     return src
 
 def htmlRendering(src):

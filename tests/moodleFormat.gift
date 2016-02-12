@@ -1,0 +1,27 @@
+::Test Moodle 1::
+Look at http://www.univ-lille.fr !
+\n
+What is the logo?
+{}
+
+::Test Moodle 2::
+Look at http://www.univ-lille.fr !\n
+What is the logo?
+{}
+
+::Test Moodle 3::
+Look at http://www.univ-lille.fr !\nWhat is the logo?
+{}
+
+
+::Test Moodle 4::
+Look at http://www.univ-lille.fr !\n\nWhat is the logo?
+{}
+
+::Test Moodle 5::
+Look at http://www.univ-lille.fr !\n
+<ul>
+<li>What is the logo?</li>
+</ul>
+{}
+
