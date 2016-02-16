@@ -13,7 +13,7 @@ setup(
     license="AGPL",
     author="Marc Tommasi - UdL/INRIA",
     packages=find_packages(),
-    install_requires=['yattag', 'i18n'],
+    install_requires=['yattag', 'markdown'],
     long_description=long_description,
     classifiers=[
         "Programming Language :: Python",

@@ -1,6 +1,6 @@
 #! /usr/bin/python3
 import sys
-sys.path.append('../src')
+sys.path.append('../pygift')
 import pygift
 import yattag
 
