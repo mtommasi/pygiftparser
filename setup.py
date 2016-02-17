@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 from setuptools import setup, find_packages
 
@@ -7,7 +8,7 @@ except IOError:
     long_description = ""
 
 setup(
-    name="pygift",
+    name="pygift_parser",
     version="0.1",
     description="GIFT parser in python that parses a Gift source code and loads data in a Question/Answer model for further use in an application",
     license="AGPL",
