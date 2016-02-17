@@ -2,7 +2,7 @@
 import logging
 import re
 import yattag
-import i18n
+from pygiftparser import i18n
 import sys
 _ = i18n.language.gettext
 

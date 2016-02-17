@@ -1,8 +1,8 @@
 #! /usr/bin/python3
 import sys
 import html
-sys.path.append('../src')
-import pygift
+sys.path.append('..')
+from pygiftparser import pygiftparser as pygift
 import yattag
 
 import glob

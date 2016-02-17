@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import os, sys
 import locale
 import gettext
@@ -6,20 +7,19 @@ import gettext
 #  The translation files will be under 
 #  @LOCALE_DIR@/@LANGUAGE@/LC_MESSAGES/@APP_NAME@.mo
 #
-APP_NAME = "pygift"
+APP_NAME = "pygiftparser"
 
 # For a server side installation 
 #
 # PREFIX = sys.prefix
 
 # for a local dir
-PREFIX = '/home/tommasi/Enseign/devel/gift'
+# PREFIX = '/home/tommasi/Enseign/devel/gift'
+PREFIX=os.path.abspath(os.path.join(__file__,'..','..'))
 APP_DIR = os.path.join (PREFIX,
                         'share')
 LOCALE_DIR = os.path.join(APP_DIR, 'locale')
-
-#LOCALE_DIR = '/home/tommasi/Enseign/devel/gift/po/'
-
+print (LOCALE_DIR)
 # Now we need to choose the language. We will provide a list, and gettext
 # will use the first translation available in the list
 #
