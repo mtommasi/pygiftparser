@@ -13,7 +13,7 @@ setup(
     description="GIFT parser in python that parses a Gift source code and loads data in a Question/Answer model for further use in an application",
     license="AGPL",
     author="Marc Tommasi - UdL/INRIA",
-    py_modules=['pygiftparser', 'i18n'],
+    py_modules=['src.pygiftparser', 'src.i18n'],
     install_requires=['yattag', 'markdown'],
     long_description=long_description,
     classifiers=[
