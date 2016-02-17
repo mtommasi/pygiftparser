@@ -537,7 +537,8 @@ def markupRendering(src,markup='html'):
     if rendering in m.__dict__ :
         return getattr(m,rendering)(src)
     else:
-        logging.warning('Rendering error: unknown markup language '+self.markup)
+        logging.warning('Rendering error: unknown markup language '+markup)
+        return src
         
 def transformSpecials(src):
     return reSpecialChar.sub(r'\g<char>',src)
