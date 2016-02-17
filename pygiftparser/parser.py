@@ -14,16 +14,20 @@ reURL=re.compile(r"(http://[^ ]+)",re.M)
 reNewLine=re.compile(r'\n\n',re.M)
 
 # Sub regular expressions
-OPTIONALFEEDBACK='(#(?P<feedback>[^=~#]*))?'
-OPTIONALFEEDBACK2='(#(?P<feedback2>[^=~#]*))?'
+ANYCHAR=r'([^\\=~#]|(\\.))'
+OPTIONALFEEDBACK='(#(?P<feedback>'+ANYCHAR+'*))?'
+OPTIONALFEEDBACK2='(#(?P<feedback2>'+ANYCHAR+'*))?'
 GENERALFEEDBACK='(####(?P<generalfeedback>.*))?'
-ANYCHAR='([^\\#=~]|\\.)'
 NUMERIC='[\d]+(\.[\d]+)?'
 
 # Regular Expressions 
 reSepQuestions=re.compile(r'^\s*$')
 reComment=re.compile(r'^//.*$')
 reCategory=re.compile(r'^\$CATEGORY: (?P<cat>[/\w$]*)')
+
+# Special chars
+reSpecialChar=re.compile(r'\\(?P<char>[#=~:{}])')
+
 
 # Heading
 # Title is supposed to be at the begining of a line
@@ -32,13 +36,13 @@ reMarkup=re.compile(r'^.*\[(?P<markup>.*?)\](?P<text>.*)',re.M+re.S)
 reAnswer=re.compile(r'^(?P<head>.*[^\\]){(?P<answer>.*?[^\\]?)'+GENERALFEEDBACK+'}(?P<tail>.*)',re.M+re.S)
 
 # numeric answers
-reAnswerNumeric=re.compile(r'^#')
+reAnswerNumeric=re.compile(r'^#[^#]')
 reAnswerNumericValue = re.compile(r'\s*(?P<value>'+NUMERIC+')(:(?P<tolerance>'+NUMERIC+'))?'+OPTIONALFEEDBACK)
 reAnswerNumericInterval=re.compile(r'\s*(?P<min>'+NUMERIC+')(\.\.(?P<max>'+NUMERIC+'))?'+OPTIONALFEEDBACK)
 reAnswerNumericExpression = re.compile(r'\s*(?P<val1>'+NUMERIC+')((?P<op>:|\.\.)(?P<val2>'+NUMERIC+'))?'+OPTIONALFEEDBACK)
 
 # Multiple choices only ~ symbols
-reAnswerMultipleChoices = re.compile(r'\s*(?P<sign>=|~)(%(?P<fraction>-?[\d.]+)%)?(?P<answer>([^\\#=~]|\\.)*)'+OPTIONALFEEDBACK)
+reAnswerMultipleChoices = re.compile(r'\s*(?P<sign>=|~)(%(?P<fraction>-?'+NUMERIC+')%)?(?P<answer>('+ANYCHAR+')*)'+OPTIONALFEEDBACK)
 
 # True False
 reAnswerTrueFalse = re.compile(r'^\s*(?P<answer>(T(RUE)?)|(F(ALSE)?))'+OPTIONALFEEDBACK+OPTIONALFEEDBACK2)
@@ -250,7 +254,8 @@ class MultipleChoicesSet(ChoicesSet):
 
     def checkValidity(self):
         """ Check validity the sum f fractions should be 100 """
-        return sum([ a.fraction for a in self.answers if a.fraction>0]) == 100
+        total = sum([ a.fraction for a in self.answers if a.fraction>0]) 
+        return total >= 99 and total <= 100
 
     def toHTML(self,doc):
         with doc.tag('ul'):
@@ -515,15 +520,16 @@ def moodleRendering(src):
     """ See https://docs.moodle.org/23/en/Formatting_text#Moodle_auto-format"""
     # blank lines are new paragraphs, url are links, html is allowed
     # quick and dirty conversion (don't closed p tags...)
+    src = transformSpecials(src)
     src = reURL.sub(r'<a href="\1">\1</a>', src)
     src = reNewLine.sub(r'<p>',src)
     return src
 
 def htmlRendering(src):
-    return src
+    return transformSpecials(src)
 
 def markdownRendering(src):
-    return markdown.markdown(src)
+    return markdown.markdown(transformSpecials(src))
     
 def markupRendering(src,markup='html'):
     m = sys.modules[__name__]
@@ -533,7 +539,8 @@ def markupRendering(src,markup='html'):
     else:
         logging.warning('Rendering error: unknown markup language '+self.markup)
         
-    
+def transformSpecials(src):
+    return reSpecialChar.sub(r'\g<char>',src)
     
 def parseFile(f):
     cleanedSource = fullSource = ""

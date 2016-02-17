@@ -19,7 +19,7 @@ PREFIX=os.path.abspath(os.path.join(__file__,'..','..'))
 APP_DIR = os.path.join (PREFIX,
                         'share')
 LOCALE_DIR = os.path.join(APP_DIR, 'locale')
-print (LOCALE_DIR)
+
 # Now we need to choose the language. We will provide a list, and gettext
 # will use the first translation available in the list
 #

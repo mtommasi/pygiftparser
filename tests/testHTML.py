@@ -2,7 +2,7 @@
 import sys
 import html
 sys.path.append('..')
-from pygiftparser import pygiftparser as pygift
+from pygiftparser import parser as pygift
 import yattag
 
 import glob
