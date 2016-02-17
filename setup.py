@@ -8,12 +8,12 @@ except IOError:
     long_description = ""
 
 setup(
-    name="pygift_parser",
+    name="pygiftparser",
     version="0.1",
     description="GIFT parser in python that parses a Gift source code and loads data in a Question/Answer model for further use in an application",
     license="AGPL",
     author="Marc Tommasi - UdL/INRIA",
-    packages=find_packages(),
+    py_modules=['pygiftparser', 'i18n'],
     install_requires=['yattag', 'markdown'],
     long_description=long_description,
     classifiers=[

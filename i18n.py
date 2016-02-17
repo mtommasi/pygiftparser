@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+#-*- coding: utf-8 -*-
 import os, sys
 import locale
 import gettext
@@ -7,7 +8,7 @@ import gettext
 #  The translation files will be under 
 #  @LOCALE_DIR@/@LANGUAGE@/LC_MESSAGES/@APP_NAME@.mo
 #
-APP_NAME = "pygift"
+APP_NAME = "pygiftparser"
 
 # For a server side installation 
 #
