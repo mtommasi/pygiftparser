@@ -1,7 +1,7 @@
 #! /usr/bin/python3
 import sys
-sys.path.append('../src')
-import pygiftparser
+sys.path.append('..')
+from pygiftparser import parser as pygift
 import yattag
 
 import glob
@@ -18,7 +18,7 @@ with d.tag('html'):
                     d.text(filename)
                 
                 with open(filename,'r') as f:
-                    questions = pygiftparser.parseFile(f)
+                    questions = pygift.parseFile(f)
                 f.close()
         
                 for q in questions:
