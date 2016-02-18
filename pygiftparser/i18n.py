@@ -1,5 +1,4 @@
 #!/usr/bin/python3
-#-*- coding: utf-8 -*-
 import os, sys
 import locale
 import gettext
@@ -15,12 +14,11 @@ APP_NAME = "pygiftparser"
 # PREFIX = sys.prefix
 
 # for a local dir
-PREFIX = '/home/tommasi/Enseign/devel/gift'
+# PREFIX = '/home/tommasi/Enseign/devel/gift'
+PREFIX=os.path.abspath(os.path.join(__file__,'..','..'))
 APP_DIR = os.path.join (PREFIX,
                         'share')
 LOCALE_DIR = os.path.join(APP_DIR, 'locale')
-
-#LOCALE_DIR = '/home/tommasi/Enseign/devel/gift/po/'
 
 # Now we need to choose the language. We will provide a list, and gettext
 # will use the first translation available in the list

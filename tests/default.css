@@ -1,15 +1,39 @@
+.gifts {
+    padding-left: 10%;     
+}
+
 .question {
+    width: 50%;
+    display: inline-block;
+    vertical-align: text-top;
+}
+
+.full{
+    width: 50%;
+    display: inline-block;
+    vertical-align: text-top;
+}
+.full pre {
+    margin-left: 1em;
+    border-left: solid 2em lightsteelblue;
+    padding-left: 1em;
+}
+.qandcode {
+   border: solid;
     padding: 1em;
     background-color: lightgray;
     margin: 1em;
+    border-radius: 1em
 }
+
 
 .questionTitle{
     font-weight: bolder;
     font-size: larger;
     font-style: italic;
-    padding: .5em;
+    padding: .5em .5em .5em 1.5rem;
     background-color: lightsteelblue;
+    border-radius: 1em;
 }
 
 .questionText{
@@ -37,7 +61,16 @@
     height: 12em;
 }
 
-.questionGeneralFeedback, .answerWrongFeedback, .answerCorrectFeedback {
+li.correct {
+    font-style: italic;
+    font-weight: bold;
+}
+
+li.partial {
+    font-style: italic;
+}
+
+.questionGeneralFeedback, .answerWrongFeedback, .answerCorrectFeedback, .groupedAnswerFeedback, .answerFeedback {
     text-align: right;
     color:gray;
 }
