@@ -1,7 +1,9 @@
 #!/usr/bin/python3
+#-*- coding: utf-8 -*-
 import logging
 import re
 import yattag
+import markdown
 from pygiftparser import i18n
 import sys
 _ = i18n.language.gettext
@@ -343,6 +345,7 @@ class Question:
     """
     def __init__(self,source,full,cat):
         """ source of the question without comments and with comments"""
+        self.source = source
         self.full = full
         self.category = cat
         self.valid = True
