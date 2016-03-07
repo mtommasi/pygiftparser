@@ -10,6 +10,7 @@ _ = i18n.language.gettext
 
 # TODOS:
 # - unittest
+MARKDOWN_EXT = ['markdown.extensions.extra', 'markdown.extensions.nl2br', 'superscript']
 
 # Url and blank lines (moodle format)
 reURL=re.compile(r"(http://[^ ]+)",re.M)
@@ -532,7 +533,7 @@ def htmlRendering(src):
     return transformSpecials(src)
 
 def markdownRendering(src):
-    return markdown.markdown(transformSpecials(src))
+    return markdown.markdown(transformSpecials(src), MARKDOWN_EXT)
     
 def markupRendering(src,markup='html'):
     m = sys.modules[__name__]
@@ -577,7 +578,7 @@ def parseFile(f):
 
     if cleanedSource != "":
         questions.append(Question(cleanedSource,fullSource,category))
-
+        
     return questions
 
 
