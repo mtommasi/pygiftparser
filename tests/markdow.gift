@@ -5,6 +5,7 @@ Allo [Lille](http://www.univ-lille.fr)
 - allo
 - la terre
 {}
+<<<<<<< HEAD
 
 ::La vitesse des ordinateurs::[markdown]Le **microprocesseur** qui réalise les calculs dans un ordinateur déclenche ses opérations à intervalles de temps régulier. C'est **l'horloge** qui a ce rôle de définir la cadence de travail du processeur et donc sa vitesse de calcul.  La fréquence d'horloge se mesure en kiloHertz (kHz, milliers de fois par seconde), en MégaHertz (Mhz, millions de fois par seconde) ou en GigaHertz (GHz, milliards de fois par seconde). Cela correspond au nombre maximal d'opérations élémentaires qu'un ordinateur peut effectuer **en une seconde**. Nous vous proposons de faire quelques recherches pour prendre conscience des *ordres de grandeur* et des évolutions sur les 70 dernières années.
 En vous aidant par exemple de [cette page](http://fr.wikipedia.org/wiki/Histoire_des_ordinateurs), retrouver la **date** d'apparition et la **fréquence** d'horloge (en khz, Mhz ou Ghz) de ces machines emblématiques de leur époque :\n
@@ -32,3 +33,5 @@ Comme nous l'avons précisé dans la question, la vitesse des processeurs n'est 
 Représenter cette évolution sur une courbe est particulièrement difficile, car la courbe croît tellement vite qu'elle *sort* très rapidement de la feuille. Multiplier par 2 à chaque intervalle de temps régulier définit une courbe **exponentielle**, caractéristique de la *loi de Moore* qui prédit cette évolution. Peu de technologies ont des évolutions aussi spectaculaires.
 Notons, que cette loi *empirique* (constatée, mais pas démontrée) s'arrêtera forcément un jour, la vitesse ne pouvant être infinie. Beaucoup de gens ont d'ailleurs prédit qu'à telle ou telle date, la loi ne se vérifierait plus, ... or, pour l'instant elle tient toujours, ...
 }
+=======
+>>>>>>> master

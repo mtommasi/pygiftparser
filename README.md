@@ -9,11 +9,11 @@
 
 ## Install
 ```
-pip install -e git://github.com/CultureNumerique/pygiftparser#egg=pygiftparser
+pip install -e git://github.com/mtommasi/pygiftparser#egg=pygiftparser
 ```
 Import it in your application like this
 ```
-import pygiftparser
+from pygiftparser import parser 
 ```
 
 ## Internationalization

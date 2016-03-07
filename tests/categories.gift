@@ -23,7 +23,7 @@ Description Q4
 there is no answer
 
 
-::Q5::[markdown] MArkdown text in Q5{answer Q5}
+::Q5::[markdown] MArkdown text in Q5{=answer Q5}
 
 question 6 {} with tail
 

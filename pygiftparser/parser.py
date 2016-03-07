@@ -34,7 +34,7 @@ reSpecialChar=re.compile(r'\\(?P<char>[#=~:{}])')
 # Heading
 # Title is supposed to be at the begining of a line
 reTitle=re.compile(r'^::(?P<title>.*?)::(?P<text>.*)$',re.M+re.S)
-reMarkup=re.compile(r'^.*\[(?P<markup>.*?)\](?P<text>.*)',re.M+re.S)
+reMarkup=re.compile(r'^\s*\[(?P<markup>.*?)\](?P<text>.*)',re.M+re.S)
 reAnswer=re.compile(r'^(?P<head>.*[^\\]){(?P<answer>.*?[^\\]?)'+GENERALFEEDBACK+'}(?P<tail>.*)',re.M+re.S)
 
 # numeric answers
