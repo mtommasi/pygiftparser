@@ -10,7 +10,8 @@ _ = i18n.language.gettext
 
 # TODOS:
 # - unittest
-MARKDOWN_EXT = ['markdown.extensions.extra', 'markdown.extensions.nl2br', 'superscript']
+#MARKDOWN_EXT = ['markdown.extensions.extra', 'markdown.extensions.nl2br', 'superscript']
+MARKDOWN_EXT = ['markdown.extensions.extra', 'superscript']
 
 # Url and blank lines (moodle format)
 reURL=re.compile(r"(http://[^ ]+)",re.M)
@@ -370,6 +371,8 @@ class Question:
             self.tail=stripMatch(match,'tail')
             self.__parseHead(match.group('head'))
             self.generalFeedback = stripMatch(match,'generalfeedback')
+            # replace \n
+            self.generalFeedback = re.sub(r'\\n','\n',self.generalFeedback)
             self.__parseAnswer(match.group('answer'))
         
     def __parseHead(self,head):
