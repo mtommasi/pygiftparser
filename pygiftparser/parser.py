@@ -10,8 +10,7 @@ _ = i18n.language.gettext
 
 # TODOS:
 # - unittest
-#MARKDOWN_EXT = ['markdown.extensions.extra', 'markdown.extensions.nl2br', 'superscript']
-MARKDOWN_EXT = ['markdown.extensions.extra', 'superscript']
+MARKDOWN_EXT = ['markdown.extensions.extra', 'markdown.extensions.nl2br', 'superscript']
 
 # Url and blank lines (moodle format)
 reURL=re.compile(r"(http://[^ ]+)",re.M)
@@ -21,7 +20,7 @@ reNewLine=re.compile(r'\n\n',re.M)
 ANYCHAR=r'([^\\=~#]|(\\.))'
 OPTIONALFEEDBACK='(#(?P<feedback>'+ANYCHAR+'*))?'
 OPTIONALFEEDBACK2='(#(?P<feedback2>'+ANYCHAR+'*))?'
-GENERALFEEDBACK='(####(?P<generalfeedback>.*))?'
+GENERALFEEDBACK='(####(\[(?P<gf_markup>.*?)\])*(?P<generalfeedback>.*))?'
 NUMERIC='[\d]+(\.[\d]+)?'
 
 # Regular Expressions 
@@ -507,6 +506,7 @@ class Question:
                     self.answers.toHTMLFB(doc)
                     if self.generalFeedback != '':
                         with doc.tag('div', klass='questionGeneralFeedback'):
+                            doc.asis('<p><b>Feedback:</b></p>')
                             doc.asis(markupRendering(self.generalFeedback,self.markup))
         return doc
             
