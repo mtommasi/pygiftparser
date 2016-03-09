@@ -18,7 +18,23 @@ from pygiftparser import parser
 
 ## Internationalization
 
-To be explained 
+In order to generate the translation files, just launch
+
+```
+xgettext --language=Python --keyword=_ --output=po/pygiftparser.pot `find . -name "*.py"`
+```
+
+then use `poedit` or use `msginit` (example below) and translate strings from the generated catalog
+
+```
+msginit --input=pygift.pot --locale=fr
+```
+
+Then put mo files in the `locale` directory. (Example with the `fr_FR` locale)
+
+```
+cp po/fr_FR.mo ../share/locale/fr_FR/LC_MESSAGES/pygiftparser.mo
+``` 
 
 ## Notes
 
