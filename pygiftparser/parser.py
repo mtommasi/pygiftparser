@@ -10,6 +10,7 @@ _ = i18n.language.gettext
 
 # TODOS:
 # - unittest
+MARKDOWN_EXT = ['markdown.extensions.extra', 'markdown.extensions.nl2br', 'superscript']
 
 # Url and blank lines (moodle format)
 reURL=re.compile(r"(http://[^ ]+)",re.M)
@@ -19,7 +20,7 @@ reNewLine=re.compile(r'\n\n',re.M)
 ANYCHAR=r'([^\\=~#]|(\\.))'
 OPTIONALFEEDBACK='(#(?P<feedback>'+ANYCHAR+'*))?'
 OPTIONALFEEDBACK2='(#(?P<feedback2>'+ANYCHAR+'*))?'
-GENERALFEEDBACK='(####(?P<generalfeedback>.*))?'
+GENERALFEEDBACK='(####(\[(?P<gf_markup>.*?)\])*(?P<generalfeedback>.*))?'
 NUMERIC='[\d]+(\.[\d]+)?'
 
 # Regular Expressions 
@@ -35,7 +36,7 @@ reSpecialChar=re.compile(r'\\(?P<char>[#=~:{}])')
 # Title is supposed to be at the begining of a line
 reTitle=re.compile(r'^::(?P<title>.*?)::(?P<text>.*)$',re.M+re.S)
 reMarkup=re.compile(r'^\s*\[(?P<markup>.*?)\](?P<text>.*)',re.M+re.S)
-reAnswer=re.compile(r'^(?P<head>.*[^\\]){(?P<answer>.*?[^\\]?)'+GENERALFEEDBACK+'}(?P<tail>.*)',re.M+re.S)
+reAnswer=re.compile(r'^(?P<head>.*[^\\]){\s*(?P<answer>.*?[^\\]?)'+GENERALFEEDBACK+'}(?P<tail>.*)',re.M+re.S)
 
 # numeric answers
 reAnswerNumeric=re.compile(r'^#[^#]')
@@ -369,6 +370,8 @@ class Question:
             self.tail=stripMatch(match,'tail')
             self.__parseHead(match.group('head'))
             self.generalFeedback = stripMatch(match,'generalfeedback')
+            # replace \n
+            self.generalFeedback = re.sub(r'\\n','\n',self.generalFeedback)
             self.__parseAnswer(match.group('answer'))
         
     def __parseHead(self,head):
@@ -503,6 +506,7 @@ class Question:
                     self.answers.toHTMLFB(doc)
                     if self.generalFeedback != '':
                         with doc.tag('div', klass='questionGeneralFeedback'):
+                            doc.asis('<p><b>Feedback:</b></p>')
                             doc.asis(markupRendering(self.generalFeedback,self.markup))
         return doc
             
@@ -532,7 +536,7 @@ def htmlRendering(src):
     return transformSpecials(src)
 
 def markdownRendering(src):
-    return markdown.markdown(transformSpecials(src))
+    return markdown.markdown(transformSpecials(src), MARKDOWN_EXT)
     
 def markupRendering(src,markup='html'):
     m = sys.modules[__name__]
@@ -577,7 +581,7 @@ def parseFile(f):
 
     if cleanedSource != "":
         questions.append(Question(cleanedSource,fullSource,category))
-
+        
     return questions
 
 

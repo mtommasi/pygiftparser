@@ -14,7 +14,7 @@ setup(
     license="AGPL",
     author="Marc Tommasi - UdL/INRIA",
     py_modules=['pygiftparser.parser', 'pygiftparser.i18n'],
-    install_requires=['yattag', 'markdown'],
+    install_requires=['yattag', 'markdown', 'MarkdownSuperscript'],
     long_description=long_description,
     classifiers=[
         "Programming Language :: Python",
