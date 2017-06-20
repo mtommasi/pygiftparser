@@ -2,10 +2,10 @@
 [Gift](http://microformats.org/wiki/gift) parser in python with HTML generation. 
 
 ## Travis-ci
-[![Build Status](https://travis-ci.org/CelestineSauvage/pygiftparser.svg?branch=master)](https://travis-ci.org/CelestineSauvage/pygiftparser)
+[![Build Status](https://travis-ci.org/mtommasi/pygiftparser.svg?branch=master)](https://travis-ci.org/mtommasi/pygiftparser)
 
 ## Coveralls
-[![Coverage Status](https://coveralls.io/repos/github/CelestineSauvage/pygiftparser/badge.svg?branch=master)](https://coveralls.io/github/CelestineSauvage/pygiftparser?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/mtommasi/pygiftparser/badge.svg?branch=master)](https://coveralls.io/github/mtommasi/pygiftparser?branch=master)
 
 ## Requirements
 
