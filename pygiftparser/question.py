@@ -186,7 +186,7 @@ class Question:
                 if self.generalFeedback != '':
                     with doc.tag('div', klass='global_feedback'):
                         doc.asis('<b><em>Feedback:</em></b><br/>')
-                        doc.asis(markupRendering(self.text,self.markup))
+                        doc.asis(markupRendering(self.generalFeedback, self.markup))
         return doc
 
     def myprint(self):
