@@ -26,7 +26,7 @@ class Question:
         self.cat = cat
         self.valid = True
         self.tail = ''
-        self.title = 'Quizz'
+        self.title = ''
         self.generalFeedback = ""
         self.parse(source)
 

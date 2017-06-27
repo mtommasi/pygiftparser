@@ -58,8 +58,7 @@ class GiftParsingHTMLTestCase(unittest.TestCase):
     def testUnChoix(self):
         io_gift = StringIO(u"""
 ::Pourquoi représenter avec des nombres ?::
-Pourquoi faut-il <strong>représenter</strong> les textes, images, sons,
-etc, *par* des nombres dans un ordinateur ?
+Pourquoi faut-il <strong>représenter</strong> les textes, images, sons, etc, *par* des nombres dans un ordinateur ?
 {
 ~C'est un choix <strong>industriel</strong>.#Non, les industriels n'avaient pas le choix.
 ~Les ordinateurs ont été inventés par des mathématiciens.#Non, les mathématiciens savent manipuler autre chose que des nombres, et les ordinateurs sont le fruit de l'interaction entre de nombreuses sciences.
@@ -92,19 +91,34 @@ tout doit être représenté sous forme de nombres être manipulé par un ordina
         soup = BeautifulSoup(d.getvalue(), 'html.parser')
         for i,form in enumerate(soup.find_all('form')):
             self.assertEqual(form.h3['class'][0], u'questiontitle'," Not h3 or not good class for h3")
+            self.assertEqual(str(form.h3.contents[0]), "Pourquoi représenter avec des nombres ?")
             for j,div in enumerate(form.find_all('div')):
                 if j == 0 :
                     self.assertEqual(div['class'][0], u'questiontext',"Not div or not good class for 1rst div")
+                    self.assertEqual(str(div.contents[0]), u"<p>Pourquoi faut-il <strong>représenter</strong> les textes, images, sons, etc, <em>par</em> des nombres dans un ordinateur ?</p>")
                 if (j == 1):
                     if (i == 0):
                         self.assertEqual(div['class'][0], u'groupedAnswerFeedback')
+                        # print(div.contents[0])
+                        self.assertEqual(str(div.contents[0]), u"""<ul class="multichoice"><li class="wrong_answer"><p>C'est un choix <strong>industriel</strong>.</p> ⇝ <p>Non, les industriels n'avaient pas le choix.</p></li><li class="wrong_answer"><p>Les ordinateurs ont été inventés par des mathématiciens.</p> ⇝ <p>Non, les mathématiciens savent manipuler autre chose que des nombres, et les ordinateurs sont le fruit de l'interaction entre de nombreuses sciences.</p></li><li class="right_answer"><p>Tout ordinateur est fondamentalement une machine qui calcule avec des<br/>
+nombres.</p> ⇝ <p>Oui, comme un ordinateur ne manipule que des nombres,<br/>
+tout doit être représenté sous forme de nombres être manipulé par un ordinateur.</p></li></ul>""")
                     elif (i == 1):
                         self.assertEqual(div['class'][0], u'groupedAnswer')
                 if (j == 2):
                         self.assertEqual(div['class'][0], u'global_feedback')
+                        self.assertEqual(str(div.contents[0]), "<b><em>Feedback:</em></b>")
+                        self.assertEqual(str(div.contents[2]), "<p>Un ordinateur ne manipule que des nombres, tout doit donc être représenté sous forme de nombres pour qu'il puisse le manipuler.</p>")
             self.assertEqual(form.ul['class'][0], u'multichoice')
             nb_li = len(form.find_all('li'))
             self.assertEqual(nb_li,3)
+            for j, li in enumerate(soup.find_all('li')):
+                if j == 0:
+                    self.assertEqual(str(li.contents[0]), "<p>C'est un choix <strong>industriel</strong>.</p>")
+                if j == 1:
+                    self.assertEqual(str(li.contents[0]), "<p>Les ordinateurs ont été inventés par des mathématiciens.</p>")
+                if j == 2:
+                    self.assertEqual(str(li.contents[0]), "<p>Tout ordinateur est fondamentalement une machine qui calcule avec des<br/>\nnombres.</p>")
 
 
         print("[GiftParsingHTMLTestCase]-- check_single_answer OK --")
@@ -152,6 +166,8 @@ tout doit être représenté sous forme de nombres être manipulé par un ordina
                         self.assertEqual(div['class'][0], u'groupedAnswer')
                 if (j == 2):
                         self.assertEqual(div['class'][0], u'global_feedback')
+                        self.assertEqual(str(div.contents[0]), "<b><em>Feedback:</em></b>")
+                        self.assertEqual(str(div.contents[2]), "<p>C'était Grant ainsi que sa femme</p>")
             self.assertEqual(form.ul['class'][0], u'multianswer')
             nb_li = len(form.find_all('li'))
             self.assertEqual(nb_li,4)
@@ -210,69 +226,38 @@ Voici quelques exemples que nous vous proposons, n'hésitez pas à proposer d'au
         soup = BeautifulSoup(d.getvalue(), 'html.parser')
         for i,form in enumerate(soup.find_all('form')):
             self.assertEqual(form.h3['class'][0], u'questiontitle'," Not h3 or not good class for h3")
+            self.assertEqual(str(form.h3.contents[0]), u'Le numérique concerne tout le monde')
+            if i == 1:
+                self.assertIsNotNone(form.textarea)
+                self.assertTrue(form.textarea['placeholder'], _(u'Your answer here'))
             for j,div in enumerate(form.find_all('div')):
                 if j == 0 :
                     self.assertEqual(div['class'][0], u'questiontext',"Not div or not good class for 1rst div")
                 if (j == 1):
                         self.assertEqual(div['class'][0], u'global_feedback')
+                        self.assertEqual(str(div.contents[0]), "<b><em>Feedback:</em></b>")
+                        self.assertEqual(str(div.contents[2]), "<h1>Le numérique concerne tout le monde</h1>")
+                        self.assertEqual(str(div.contents[4]), """<p>Ces recherches ont dû vous convaincre, si c'était nécessaire, que le numérique <strong>n'est pas réservé</strong> aux informaticiens, il concerne tout le monde, toutes les disciplines.<br/>
+S'agissant plus particulièrement des <strong>sciences humaines</strong>, la prise en compte du numérique a fait évoluer les champs disciplinaires pour faire apparaître ce qu'on appelle les <strong>humanités numériques</strong> ( <em>digital humanities</em> en anglais).<br/>
+Voici quelques exemples que nous vous proposons, n'hésitez pas à proposer d'autres exemples dans le forum de discussion :<br/>
+<em> Dans les <strong>médias</strong> : nouveau sous-métier de journalisme : les <strong>data-journalistes</strong><br/>
+    * <a href="http://www.lemonde.fr/data-visualisation/">data-visualisation</a><br/>
+    * <a href="http://fr.wikipedia.org/wiki/Journalisme_de_données">journalisme de données</a><br/>
+</em> Dans la <strong>santé</strong> : (imagerie, dossier numérique du patient, ...)<br/>
+    * <a href="https://interstices.info/jcms/c_21525/simulation-de-loperation-de-la-cataracte">simulation</a><br/>
+<em> En <strong>histoire, sociologie, linguistique</strong> : </em>fouille de données<em><br/>
+    * <a href="http://www.youtube.com/watch?feature=player_embedded&amp;v=tp4y-_VoXdA">fouille de données</a><br/>
+</em> En <strong>art et culture</strong> :<br/>
+    * <a href="http://www.lefresnoy.net/fr/Le-Fresnoy/presentation">Le Fresnoy</a><br/>
+<em> Dans l'<strong>enseignement</strong> : (outils numérique d'accompagnement scolaire, MOOC,...):<br/>
+    * <a href="https://www.france-universite-numerique-mooc.fr/cours/">FUN</a><br/>
+</em> En fouille archéologique :  une réalisation prestigieuse réalisée à Lille3 :<br/>
+    * <a href="http://bsa.biblio.univ-lille3.fr/blog/2013/09/exposition-le-vase-qui-parle-au-palais-des-beaux-arts-de-lille/">vase qui parle</a></p>""")
+
+
 
 
         print("[GiftParsingHTMLTestCase]-- check_text1 OK --")
-
-    def testSimpleText2(self):
-        io_gift = StringIO("""
-::Le numérique au quotidien::Les microprocesseurs, les ordinateurs ont envahi notre quotidien. Pour chacun des domaines suivants, cherchez des exemples où le numérique a permis des évolutions notables :
-- Domotique
-- Transports
-- Vêtements
-- Médical / paramédical
-Après avoir effectué vos recherches, copier dans la fenêtre de rendu 1 lien pour au moins 3 des 4 thèmes proposés (un lien par thème).
-{####
-# le numérique au quotidien
-Quelques exemples que nous vous proposons au cas où vous n'auriez rien trouvé, ...
-La **domotique** est un domaine en pleine expansion qui vise à équiper numériquement notre maison :
-- [nest](https://nest.com/fr/)
-- [domotique](http://fr.wikipedia.org/wiki/Domotique)
-Pour les **transports**, les ordinateurs de bord sont depuis longtemps présents dans les voitures, de plus en plus ils sont responsables de notre sécurité :
-- [electrostabilisateur]( http://fr.wikipedia.org/wiki/electrostabilisateur_programmé)
-- [ordinateur de bord](http://fr.wikipedia.org/wiki/Ordinateur_de_bord)
-Les **chaussures** : gadget ou réelle innovation ? Ce genre d'objet est de plus en plus présents dans nos vies :
- - [chaussures](http://www.linternaute.com/science/technologie/deja-demain/07/chaussure-intelligente/chaussure-intelligente.shtml)
-Les **lentilles pour la vue** ?
- - [lentilles](http://www.zdnet.fr/actualites/google-apres-les-lunettes-connectees-les-lentilles-pour-le-diabete-39797148.htm)
-}
-""")
-        questions = pygift.parseFile(io_gift)
-        io_gift.close()
-
-        d = yattag.Doc()
-        with d.tag('html'):
-            with d.tag('head'):
-                d.stag('meta', charset="utf-8")
-
-        with d.tag('h2'):
-            d.text(str(questions[0].answers.__class__))
-
-        for q in questions:
-            q.toHTML(d,True)
-
-        for q in questions:
-            q.toHTML(d,False)
-
-        self.assertEqual(len(questions),1,"More than one Question for 'TestSimpleText2'")
-
-
-        # TEST HTML
-        soup = BeautifulSoup(d.getvalue(), 'html.parser')
-        for i,form in enumerate(soup.find_all('form')):
-            self.assertEqual(form.h3['class'][0], u'questiontitle'," Not h3 or not good class for h3")
-            for j,div in enumerate(form.find_all('div')):
-                if j == 0 :
-                    self.assertEqual(div['class'][0], u'questiontext',"Not div or not good class for 1rst div")
-                if (j == 1):
-                        self.assertEqual(div['class'][0], u'global_feedback')
-
-        print("[GiftParsingHTMLTestCase]-- check_text2 OK --")
 
 
     def testTrueFalse(self):
@@ -543,7 +528,7 @@ bleble
         #HEAD 2
         question2 = pygift.Question('','','')
         question2._parseHead(io_head2)
-        self.assertEqual(question2.title,"Quizz")
+        self.assertEqual(question2.title,"")
         self.assertEqual(question2.text,"Macumba\nblabla\n\n\nbleble\n{}")
         self.assertEqual(question2.markup,"html")
 
