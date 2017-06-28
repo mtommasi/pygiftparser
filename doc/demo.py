@@ -1,40 +1,41 @@
 #! /usr/bin/python3
 import sys
 import html
+import yattag
+import glob
 sys.path.append('..')
 from pygiftparser import parser as pygift
-import yattag
-
-import glob
 
 
-d = yattag.Doc() 
+d = yattag.Doc()
 d.asis('<!DOCTYPE html>')
 with d.tag('html'):
     with d.tag('head'):
         d.stag('meta', charset="utf-8")
         d.stag('link', rel="stylesheet", href="default.css", type="text/css")
-        d.stag('link', rel="stylesheet", href="libs/tocible-master/jquery.tocible.css", type="text/css")
+        d.stag('link', rel="stylesheet",
+               href="libs/tocible-master/jquery.tocible.css",
+               type="text/css")
         with d.tag('body'):
             d.asis("""
             <script src="http://code.jquery.com/jquery-1.12.0.min.js"></script>
             <script src="libs/tocible-master/jquery.tocible.js"></script>
             """)
-            with d.tag('div',id='container'):
+            with d.tag('div', id='container'):
                 with d.tag('div', id='ref'):
                     d.text('')
-                with d.tag('div',klass='gifts'):
+                with d.tag('div', klass='gifts'):
                     for filename in glob.glob('*gift'):
                         with d.tag('h1'):
                             d.text(filename)
                             
-                        with open(filename,'r') as f:
+                        with open(filename, 'r') as f:
                             questions = pygift.parseFile(f)
                         f.close()
                                 
                         for q in questions:
                             with d.tag('div', klass='qandcode'):
-                                q.toHTML(d,True)
+                                q.toHTML(d, True)
 
                                 with d.tag('div', klass='full'):
                                     with d.tag('pre'):
@@ -54,8 +55,6 @@ with d.tag('html'):
             });
             </script>
             """)
-out =  open("index.html", "w")
-out.write (d.getvalue())
+out = open("index.html", "w")
+out.write(d.getvalue())
 out.close()
-
-    

@@ -1,9 +1,14 @@
- #!/usr/bin/python3
+#! /usr/bin/python3
 # encoding=utf8
 
-#problem with utf8 loading
+# problem with utf8 loading
 import sys
 import os
+import yattag
+from bs4 import BeautifulSoup
+import unittest
+
+import logging
 
 if sys.version_info[0] == 3:
     pass
@@ -13,22 +18,16 @@ else:
 
 sys.path.append('..')
 from pygiftparser import parser as pygift
-from bs4 import BeautifulSoup
 
 if sys.version_info[0] == 3:
     from io import StringIO
 else:
     from StringIO import StringIO
-import unittest
-
-import markdown
 
 # Ignore Warning
-import logging
 logger = logging.getLogger()
 logger.setLevel(40)
 
-import yattag
 
 _ = pygift.i18n.language.gettext
 
@@ -79,10 +78,10 @@ tout doit être représenté sous forme de nombres être manipulé par un ordina
             d.text(str(questions[0].answers.__class__))
 
         for q in questions:
-            q.toHTML(d,True)
+            q.toHTML(d, True)
 
         for q in questions:
-            q.toHTML(d,False)
+            q.toHTML(d, False)
 
         #Vérifie qu'une seule question a bien été créée
         self.assertEqual(len(questions),1,"More than one Question for 'Test un choix'")
@@ -145,10 +144,10 @@ tout doit être représenté sous forme de nombres être manipulé par un ordina
             d.text(str(questions[0].answers.__class__))
 
         for q in questions:
-            q.toHTML(d,True)
+            q.toHTML(d, True)
 
         for q in questions:
-            q.toHTML(d,False)
+            q.toHTML(d, False)
 
         self.assertEqual(len(questions),1,"More than one Question for 'TestMultiple'")
 
@@ -263,7 +262,7 @@ Voici quelques exemples que nous vous proposons, n'hésitez pas à proposer d'au
     def testTrueFalse(self):
         """
         """
-        #INITIALISATION
+        # INITIALISATION
         d = yattag.Doc()
         with d.tag('html'):
             with d.tag('head'):
@@ -281,10 +280,10 @@ Le soleil se lève à l'Ouest.{F#Non!#Oui le soleil se lève à l'Est}
             d.text(str(questions[0].answers.__class__))
 
         for q in questions:
-            q.toHTML(d,True)
+            q.toHTML(d, True)
 
         for q in questions:
-            q.toHTML(d,False)
+            q.toHTML(d, False)
 
         self.assertEqual(len(questions),1,"More than one Question for 'TestTrueFalse'")
 
@@ -292,26 +291,26 @@ Le soleil se lève à l'Ouest.{F#Non!#Oui le soleil se lève à l'Est}
         for i,form in enumerate(soup.find_all('form')):
             self.assertEqual(form.h3['class'][0], u'questiontitle'," Not h3 or not good class for h3")
             for j,div in enumerate(form.find_all('div')):
-                if j == 0 :
+                if j == 0:
                     self.assertEqual(div['class'][0], u'questiontext',"Not div or not good class for 1rst div")
-                if i == 0 :
-                    if j == 1 :
+                if i == 0:
+                    if j == 1:
                         self.assertEqual(div['class'][0], u'answerFeedback',"Not div or not good class for 2sd div")
                         self.assertEqual(div.contents[0], u'False')
-                    if j == 2 :
+                    if j == 2:
                         self.assertEqual(div['class'][0], u'correct_answer',"Not div or not good class for 3rd div")
                         self.assertEqual(str(div.contents[0]), "<p>Oui le soleil se lève à l'Est</p>")
-                    if j == 3 :
+                    if j == 3:
                         self.assertEqual(div['class'][0], u'wrong_answer')
                         self.assertEqual(str(div.contents[0]), "<p>Non!</p>")
-            if i == 1 :
+            if i == 1:
                 self.assertIsNotNone(form.ul)
                 for j,li in enumerate(form.find_all('li')):
-                    if j == 0 :
+                    if j == 0:
                         self.assertEqual(li.contents[0]['type'], u'radio')
                         self.assertEqual(li.contents[0]['value'], u'True')
                         self.assertEqual(li.contents[1], _(u'True'))
-                    if j == 1 :
+                    if j == 1:
                         self.assertEqual(li.contents[0]['type'], u'radio')
                         self.assertEqual(li.contents[0]['value'], u'False')
                         self.assertEqual(li.contents[1], _(u'False'))
@@ -343,30 +342,30 @@ My Question{
             d.text(str(questions[0].answers.__class__))
 
         for q in questions:
-            q.toHTML(d,True)
+            q.toHTML(d, True)
 
         for q in questions:
-            q.toHTML(d,False)
+            q.toHTML(d, False)
 
         self.assertEqual(len(questions),1,"More than one Question for 'TestAnswerArea 1'")
 
         soup = BeautifulSoup(d.getvalue(), 'html.parser')
         for i,form in enumerate(soup.find_all('form')):
             self.assertEqual(form.h3['class'][0], u'questiontitle'," Not h3 or not good class for h3")
-            if i == 0 :
+            if i == 0:
                 for j,div in enumerate(form.find_all('div')):
-                    if j == 0 :
+                    if j == 0:
                         self.assertEqual(div['class'][0], u'questiontext')
                         self.assertEqual(str(div.contents[0]),'<p>second part of text of Q2<br/>\nMy Question</p>')
-                    if j == 2 :
+                    if j == 2:
                         self.assertEqual(div['class'][0], 'groupedAnswerFeedback')
                         self.assertEqual(str(div.contents[0]),'<ul><li class="right_answer">2</li><li class="right_answer">Q2</li><li class="right_answer">Question2</li></ul>')
             if i == 1:
                 for j,span in enumerate(form.find_all('span')):
-                    if j == 0 :
+                    if j == 0:
                         self.assertEqual(span['class'][0], u'questionTextInline')
                         self.assertEqual(str(span.contents[0]),'<p>second part of text of Q2<br/>\nMy Question</p>')
-                    if j == 1 :
+                    if j == 1:
                         self.assertEqual(span['class'][0], u'questionAnswersInline')
                         self.assertEqual(span.input['type'], u'text')
 
@@ -406,10 +405,10 @@ When was Ulysses S. Grant born? {#
         for q in questions:
             with d.tag('h2'):
                 d.text(str(questions[0].answers.__class__))
-            q.toHTML(d,True)
+            q.toHTML(d, True)
 
         for q in questions:
-            q.toHTML(d,False)
+            q.toHTML(d, False)
 
 
         soup = BeautifulSoup(d.getvalue(), 'html.parser')
@@ -463,16 +462,16 @@ Match the following countries with their corresponding capitals. {
             d.text(str(questions[0].answers.__class__))
 
         for q in questions:
-            q.toHTML(d,True)
+            q.toHTML(d, True)
 
         for q in questions:
-            q.toHTML(d,False)
+            q.toHTML(d, False)
 
         soup = BeautifulSoup(d.getvalue(), 'html.parser')
         for i,form in enumerate(soup.find_all('form')):
             self.assertEqual(form.h3['class'][0], u'questiontitle'," Not h3 or not good class for h3")
             if i == 0 :
-                for j,div in enumerate(form.find_all('div')):
+                for j, div in enumerate(form.find_all('div')):
                     if j == 0:
                         self.assertEqual(div['class'][0], u'questiontext')
                     if j == 2:
@@ -481,10 +480,10 @@ Match the following countries with their corresponding capitals. {
             if i == 1 :
                 self.assertIsNotNone(form.table)
                 for j,tr in enumerate(soup.find_all('tr')):
-                    #WARNING : check options
+                    # WARNING : check options
                     for p,td in enumerate(tr.find_all('td')):
-                        if p == 0 :
-                            if j == 0 :
+                        if p == 0:
+                            if j == 0:
                                 self.assertEqual(tr.td.contents[0], u'Canada  ')
                             if j == 1:
                                 self.assertEqual(tr.td.contents[0], u'Italy  ')
@@ -518,15 +517,15 @@ blabla
 \n
 bleble
 {}""")
-        #HEAD 1
-        question = pygift.Question('','','')
+        # HEAD 1
+        question = pygift.Question('', '', '')
         question._parseHead(io_head1)
         self.assertEqual(question.title,"Macumba")
         self.assertEqual(question.text,"blabla\n\n\nbleble\n{}")
         self.assertEqual(question.markup,"markdown")
 
-        #HEAD 2
-        question2 = pygift.Question('','','')
+        # HEAD 2
+        question2 = pygift.Question('', '', '')
         question2._parseHead(io_head2)
         self.assertEqual(question2.title,"")
         self.assertEqual(question2.text,"Macumba\nblabla\n\n\nbleble\n{}")
@@ -554,7 +553,7 @@ Qui repose dans la Grant's tomb ? {=Grant ~Personne ~Napoléon ~Churchill ~Mère
 #Elle a été enterrée en Inde.
 }
 """)
-        #mult1
+        # mult1
         question1 = pygift.Question('','','')
         question1.parse(io_mult1)
         self.assertIsInstance(question1.answers, pygift.SelectSet)
@@ -570,22 +569,22 @@ Qui repose dans la Grant's tomb ? {=Grant ~Personne ~Napoléon ~Churchill ~Mère
             if i == 3: self.assertTrue('Churchill' in a.answer)
             if i == 4: self.assertTrue('Mère Teresa' in a.answer)
 
-        ##TEST MY PRINT !! ##
+        # #TEST MY PRINT !! ##
         question1.myprint()
         print('\n')
 
         del question1
 
-        #mult2
+        # mult2
         question2 = pygift.Question('','','')
         question2.parse(io_mult2)
         self.assertIsInstance(question2.answers, pygift.SelectSet)
-        for (i,a) in enumerate(question2.answers.answers) :
-            self.assertIsInstance(a,pygift.AnswerInList)
+        for (i, a) in enumerate(question2.answers.answers):
+            self.assertIsInstance(a, pygift.AnswerInList)
             if i == 0:
                 self.assertTrue('Grant' in a.answer)
                 self.assertEqual(a.fraction, 100)
-            else :
+            else:
                 self.assertEqual(a.fraction, 0)
             if i == 1:
                 self.assertTrue('Personne' in a.answer)
@@ -833,34 +832,34 @@ Blablablablabla
 }""")
         # FIXME : Ne pas passer par la méthode parse mais par _parseNumericAnswers / _parseNumericText
         #NUM1
-        question1 = pygift.Question('','','')
+        question1 = pygift.Question('', '', '')
         question1.parse(io_num1)
         self.assertTrue(question1.numeric)
-        self.assertIsInstance(question1.answers,pygift.NumericAnswerSet)
-        self.assertIsInstance(question1.answers.answers[0],pygift.NumericAnswer)
-        self.assertEqual(question1.answers.answers[0].value,2)
-        self.assertEqual(question1.answers.answers[0].tolerance,0)
+        self.assertIsInstance(question1.answers, pygift.NumericAnswerSet)
+        self.assertIsInstance(question1.answers.answers[0], pygift.NumericAnswer)
+        self.assertEqual(question1.answers.answers[0].value, 2)
+        self.assertEqual(question1.answers.answers[0].tolerance, 0)
         del question1
-        #NUM2
-        question2 = pygift.Question('','','')
+        # NUM2
+        question2 = pygift.Question('', '', '')
         question2.parse(io_num2)
         self.assertTrue(question2.numeric)
-        self.assertIsInstance(question2.answers,pygift.NumericAnswerSet)
-        self.assertIsInstance(question2.answers.answers[0],pygift.NumericAnswer)
-        self.assertEqual(question2.answers.answers[0].value,2)
-        self.assertEqual(question2.answers.answers[0].tolerance,1)
+        self.assertIsInstance(question2.answers, pygift.NumericAnswerSet)
+        self.assertIsInstance(question2.answers.answers[0], pygift.NumericAnswer)
+        self.assertEqual(question2.answers.answers[0]. value, 2)
+        self.assertEqual(question2.answers.answers[0].tolerance, 1)
         del question2
         # #NUM3
-        question3 = pygift.Question('','','')
+        question3 = pygift.Question('', '', '')
         question3.parse(io_num3)
         self.assertTrue(question3.numeric)
-        self.assertIsInstance(question3.answers,pygift.NumericAnswerSet)
-        self.assertIsInstance(question3.answers.answers[0],pygift.NumericAnswerMinMax)
-        self.assertEqual(question3.answers.answers[0].mini,str(1))
-        self.assertEqual(question3.answers.answers[0].maxi,str(3))
+        self.assertIsInstance(question3.answers, pygift. NumericAnswerSet)
+        self.assertIsInstance(question3.answers.answers[0], pygift.NumericAnswerMinMax)
+        self.assertEqual(question3.answers.answers[0].mini, str(1))
+        self.assertEqual(question3.answers.answers[0].maxi, str(3))
         del question3
 
-        question4 = pygift.Question('','','')
+        question4 = pygift.Question('', '', '')
         question4.parse(io_num4)
         self.assertTrue(question4.numeric)
         self.assertFalse(question4.valid)
@@ -869,17 +868,13 @@ Blablablablabla
         """
         test the fail value of :func:`pygift._parseAnswer`
         """
-        q = pygift.Question('','','')
+        q = pygift.Question('', '', '')
         q._parseAnswer('blazqopk')
         self.assertFalse(q.valid)
         q.myprint()
-        self.assertEqual('',q.toHTML())
+        self.assertEqual('', q.toHTML())
 
 
 # Main
 if __name__ == '__main__':
-    try :
-        os.makedirs(TEST_GIFT_DIR)
-    except :
-        pass
     unittest.main(verbosity=1)
