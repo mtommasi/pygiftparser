@@ -40,7 +40,15 @@
     padding:1em 1em;
 }
 
+.questionTextInline {
+    padding:1em 1em;
+}
+
 .questionAnswers{
+    padding:0.5em 1em;
+}
+
+.questionAnswersInline {
     padding:0.5em 1em;
 }
 
@@ -70,9 +78,18 @@ li.partial {
     font-style: italic;
 }
 
-.questionGeneralFeedback, .answerWrongFeedback, .answerCorrectFeedback, .groupedAnswerFeedback, .answerFeedback {
+/* .questionGeneralFeedback, .answerWrongFeedback, .answerCorrectFeedback, .groupedAnswerFeedback, .answerFeedback {
     text-align: right;
     color:gray;
+}*/
+
+.right_answer{
+    color:darkgreen;
+}
+
+.wrong_answer{
+    color:red;
+    text-decoration: line-through;
 }
 
 .questionGeneralFeedback:before{
@@ -83,4 +100,31 @@ li.partial {
 }
 .answerWrongFeedback:before{
     content: "Wrong feedback : ";
+}
+
+.FB{
+    margin-top: 1em;
+}
+
+.FB:before{
+    content: "Feedback";
+    display: block;
+    padding: 1em;
+    border-top: solid 1pt;
+    border-bottom: solid 1pt;
+}
+
+.multichoice p {
+    display: inline;
+}
+.multianswer p {
+    display: inline;
+}
+
+.multichoice,.multianswer {
+    list-style-type: none;
+}
+
+.FB .multichoice, .FB .multianswer {
+    list-style-type: circle;
 }

@@ -35,11 +35,13 @@ with d.tag('html'):
                                 
                         for q in questions:
                             with d.tag('div', klass='qandcode'):
-                                q.toHTML(d, True)
-
+                                q.toHTML(d, False)
                                 with d.tag('div', klass='full'):
                                     with d.tag('pre'):
                                         d.asis(html.escape(q.full))
+                                with d.tag('div', klass='FB'):
+                                    q.toHTML(d, True)
+
 
             d.asis("""
             <script language="javascript">
