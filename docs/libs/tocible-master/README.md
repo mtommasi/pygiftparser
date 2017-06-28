@@ -50,7 +50,7 @@ $('#container').tocible({
 ````
 
 ## Compatibility
-Tested on modern browsers – Chrome, Firefox, Safari, also IE.
+Tested on modern browsers Â– Chrome, Firefox, Safari, also IE.
 
 ## Changelog
 - 	v1.2.0 (24 Jun 2014)
