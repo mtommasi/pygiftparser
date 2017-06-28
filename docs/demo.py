@@ -20,6 +20,7 @@ with d.tag('html'):
             d.asis("""
             <script src="http://code.jquery.com/jquery-1.12.0.min.js"></script>
             <script src="libs/tocible-master/jquery.tocible.js"></script>
+            <h1>Demo of HTML outputs</h1>
             """)
             with d.tag('div', id='container'):
                 with d.tag('div', id='ref'):
