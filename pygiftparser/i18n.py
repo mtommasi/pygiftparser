@@ -14,14 +14,15 @@ if os.environ.get('VIRTUAL_ENV'):
     LOCALE_DIR = os.path.join(os.environ.get('VIRTUAL_ENV'),
                               'share',
                               'locale')
-elif os.path(os.path.abspath(os.path.join(__file__,
-                                          '..', '..'),
-                             'share',
-                             'locale')):
-    LOCALE_DIR = os.path(os.path.abspath(os.path.join(__file__,
-                                                      '..', '..'),
-                                         'share',
-                                         'locale'))
+elif os.path.exists(os.path.abspath(os.path.join(__file__,
+                                                 '..', '..',
+                                                 'share',
+                                                 'locale'))):
+    LOCALE_DIR = os.path.abspath(
+        os.path.join(__file__,
+                     '..', '..',
+                     'share',
+                     'locale'))
 else:
     # fallback to the default
     LOCALE_DIR = None
