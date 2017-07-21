@@ -10,8 +10,8 @@ before_script :
   - pip install -r requirement.txt
 
 script :
-  - cd tests
-  - coverage run parsergift_test.py
+  - cd test
+  - coverage run test_pygiftparser.py
 
 after_success:
   - coveralls
