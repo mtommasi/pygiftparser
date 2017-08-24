@@ -2,8 +2,12 @@
 # -*- coding: utf-8 -*-
 import logging
 from pygiftparser import i18n
-from pygiftparser import question
-from pygiftparser import utils
+
+# Not satisfactory, but I keep that for the simplification
+# of imports (import pygiftparser gets all names)
+from pygiftparser.question import *
+from pygiftparser.answer import *
+from pygiftparser.utils import *
 
 _ = i18n.language.gettext
 
@@ -18,7 +22,7 @@ def parseFile(f):
     questions = []
 
     for line in f:
-        if utils.reSepQuestions.match(line):
+        if reSepQuestions.match(line):
             if newCategory:
                 # the previous line was a category declaration
                 category = newCategory
@@ -26,26 +30,26 @@ def parseFile(f):
             else:
                 if cleanedSource != "":
                     # this is the end of a question
-                    questions.append(question.Question(cleanedSource,
-                                                       fullSource,
-                                                       category))
+                    questions.append(Question(cleanedSource,
+                                              fullSource,
+                                              category))
                 cleanedSource = fullSource = ""
         else:
             # it is not a blank line : is it a category definition?
-            match = utils.reCategory.match(line)
+            match = reCategory.match(line)
             if match:
                 newCategory = match.group('cat')
                 continue
 
             # is it a comment ?
-            if not utils.reComment.match(line):
+            if not reComment.match(line):
                 cleanedSource += line
             fullSource += line
 
     if cleanedSource != "":
-        questions.append(question.Question(cleanedSource,
-                                           fullSource,
-                                           category))
+        questions.append(Question(cleanedSource,
+                                  fullSource,
+                                  category))
 
     return questions
 

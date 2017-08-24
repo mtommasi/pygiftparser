@@ -3,7 +3,6 @@
 
 # problem with utf8 loading
 import sys
-import os
 import yattag
 from bs4 import BeautifulSoup
 import unittest
@@ -202,6 +201,7 @@ Voici quelques exemples que nous vous proposons, n'hésitez pas à proposer d'au
 	* [vase qui parle](http://bsa.biblio.univ-lille3.fr/blog/2013/09/exposition-le-vase-qui-parle-au-palais-des-beaux-arts-de-lille/)
 }
 """)
+
         questions = pygift.parseFile(io_gift)
         io_gift.close()
 
@@ -214,12 +214,14 @@ Voici quelques exemples que nous vous proposons, n'hésitez pas à proposer d'au
             d.text(str(questions[0].answers.__class__))
 
         for q in questions:
-            q.toHTML(d,True)
+            q.toHTML(d, True)
 
         for q in questions:
-            q.toHTML(d,False)
+            q.toHTML(d, False)
 
-        self.assertEqual(len(questions),1,"More than one Question for 'TestSimpleText'")
+        self.assertEqual(len(questions),
+                         1,
+                         "More than one Question for 'TestSimpleText'")
 
         # TEST HTML
         soup = BeautifulSoup(d.getvalue(), 'html.parser')

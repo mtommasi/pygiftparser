@@ -5,7 +5,7 @@ import re
 import yattag
 import uuid
 from pygiftparser import i18n
-from pyggiftparser import answer
+from pygiftparser import answer as pgans
 from pygiftparser import utils
 
 _ = i18n.language.gettext
@@ -44,7 +44,7 @@ class Question:
         match = utils.reAnswer.match(source)
         if not match:
             # it is a description
-            self.answers = answer.Description(self)
+            self.answers = pgans.Description(self)
             self._parseHead(source)
         else:
             self.tail = utils.stripMatch(match, 'tail')
@@ -79,13 +79,13 @@ class Question:
         self.text = re.sub(r'\\n', '\n', self.text)
 
     def _parseNumericText(self, text):
-        m = answer.reAnswerNumericInterval.match(text)
+        m = utils.reAnswerNumericInterval.match(text)
         if m:
-            a = answer.NumericAnswerMinMax(m)
+            a = pgans.NumericAnswerMinMax(m)
         else:
-            m = answer.reAnswerNumericValue.match(text)
+            m = utils.reAnswerNumericValue.match(text)
             if m:
-                a = answer.NumericAnswer(m)
+                a = pgans.NumericAnswer(m)
             else:
                 self.valid = False
                 return None
@@ -114,18 +114,18 @@ class Question:
             if a:
                 a.fraction = 100
                 answers.append(a)
-        self.answers = answer.NumericAnswerSet(self, answers)
+        self.answers = pgans.NumericAnswerSet(self, answers)
 
     def _parseAnswer(self, answer):
         # Essay
         if answer == '':
-            self.answers = answer.Essay(self)
+            self.answers = pgans.Essay(self)
             return
 
         # True False
         match = utils.reAnswerTrueFalse.match(answer)
         if match:
-            self.answers = answer.TrueFalseSet(self, match)
+            self.answers = pgans.TrueFalseSet(self, match)
             return
 
         # Numeric answer
@@ -139,7 +139,7 @@ class Question:
         short = True
         matching = True
         for match in utils.reAnswerMultipleChoices.finditer(answer):
-            a = answer.AnswerInList(match)
+            a = pgans.AnswerInList(match)
             # one = sign is a select question
             if a.select:
                 select = True
@@ -150,14 +150,14 @@ class Question:
 
         if len(answers) > 0:
             if matching:
-                self.answers = answer.MatchingSet(self, answers)
+                self.answers = pgans.MatchingSet(self, answers)
                 self.valid = self.answers.checkValidity()
             elif short:
-                self.answers = answer.ShortSet(self, answers)
+                self.answers = pgans.ShortSet(self, answers)
             elif select:
-                self.answers = answer.SelectSet(self, answers)
+                self.answers = pgans.SelectSet(self, answers)
             else:
-                self.answers = answer.MultipleChoicesSet(self, answers)
+                self.answers = pgans.MultipleChoicesSet(self, answers)
                 self.valid = self.answers.checkValidity()
         else:
             # not a valid question  ?
